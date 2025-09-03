@@ -1,12 +1,10 @@
-import { RouterProvider } from "react-router";
-import Routes from "./components/Routes";
+import { Outlet } from "react-router";
 import Navigation from "./components/Navigation";
-
 const App = () => {
   return (
     <div>
       <Navigation />
-      <RouterProvider router={Routes} />
+      <Outlet />
     </div>
   );
 };
