@@ -1,23 +1,27 @@
-import { createBrowserRouter } from "react-router";
 import Home from "../pages/Home";
 import Login from "../pages/login/Login";
 import NotFound from "../pages/NotFound";
 import Register from "../pages/login/Register";
+import App from "../App.jsx";
 
-const Routes = createBrowserRouter([
+export const routes = [
   {
     path: "/",
-    Component: Home,
+    Component: App,
     errorElement: <NotFound />,
-  },
-  {
-    path: "/register",
-    Component: Register,
-  },
+    children: [
+      { index: true, Component: Home },
+      {
+        path: "/register",
+        Component: Register,
+      },
 
-  {
-    path: "/login",
-    Component: Login,
+      {
+        path: "/login",
+        Component: Login,
+      },
+    ],
   },
-]);
-export default Routes;
+];
+
+export default routes;
