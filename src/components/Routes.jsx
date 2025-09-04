@@ -3,6 +3,7 @@ import Login from "../pages/login/Login";
 import NotFound from "../pages/NotFound";
 import Register from "../pages/login/Register";
 import App from "../App.jsx";
+import Me from "../pages/login/Me.jsx";
 
 export const routes = [
   {
@@ -14,6 +15,11 @@ export const routes = [
       {
         path: "/register",
         Component: Register,
+      },
+
+      {
+        path: "/me",
+        Component: Me,
       },
 
       {

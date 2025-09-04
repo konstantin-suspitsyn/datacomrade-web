@@ -16,6 +16,9 @@ const Navigation = () => {
               )}
             </NavLink>
           </li>
+          <li>
+            <NavLink to="/me">Me</NavLink>
+          </li>
         </ol>
       </div>
     </nav>
