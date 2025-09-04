@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import api from "../../api/Axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   NO_SERVER_ERR,
   INPUT_TEXT_CLASS,
@@ -9,8 +9,9 @@ import {
   formValidationError,
 } from "./LoginConsts";
 import { errorMessageRender } from "../../components/htmlrenders/Alerts";
-import useAuth from "../../hooks/UseAuth";
 import { useLocation, useNavigate } from "react-router";
+import UseAuth from "../../hooks/UseAuth";
+import AuthContext from "../../context/AuthContext";
 
 const LOGIN_URL = "/v1/users/login";
 
@@ -21,7 +22,7 @@ const Login = () => {
     formState: { errors },
   } = useForm({ mode: "onBlur" });
 
-  const { setAuth } = useAuth();
+  const { auth, setAuth } = useContext(AuthContext);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,12 +45,23 @@ const Login = () => {
       .then((response) => {
         console.log(response.data);
         const accessToken = response?.data?.access_token;
+        // console.log(accessToken);
         const roles = response?.data?.roles;
         const user = response?.data?.user;
         const email = response?.data?.email;
-        console.log(typeof setAuth);
-        setAuth({ user, roles, accessToken, email });
+        // console.log(typeof auth);
+        // console.log(auth);
+        // console.log(typeof setAuth);
 
+        // console.log(roles, user, accessToken, email);
+        console.log("setAuth", typeof setAuth);
+        setAuth({
+          user: user,
+          roles: roles,
+          accessToken: accessToken,
+          email: email,
+        });
+        console.log("Auth", auth);
         // Will be redirected either to previous page or to home
         navigate(from, { replace: true });
       })
