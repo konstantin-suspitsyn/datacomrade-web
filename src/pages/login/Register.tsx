@@ -1,77 +1,66 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import api from "../../api/Axios";
-import { useContext, useState } from "react";
+import { api } from "../../components/Api";
 import {
-  NO_SERVER_ERR,
-  INPUT_TEXT_CLASS,
   BUTTON_FORM,
   FORM_BOX,
   formValidationError,
+  INPUT_TEXT_CLASS,
+  NO_SERVER_ERR,
 } from "./LoginConsts";
-import { errorMessageRender } from "../../components/htmlrenders/Alerts";
-import { useLocation, useNavigate } from "react-router";
-import UseAuth from "../../hooks/UseAuth";
-import AuthContext from "../../context/AuthContext";
+import {
+  errorMessageRender,
+  successMsgRender,
+} from "../../components/htmlrenders/Alerts";
+import type { MessageDTO } from "../../dto/CommontData";
 
-const LOGIN_URL = "/v1/users/login";
+const REGISTER_URL = "/v1/users";
 
-const Login = () => {
+interface RegisterDTO {
+  email: string;
+  name: string;
+  password: string;
+}
+
+export const Register = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ mode: "onBlur" });
-
-  const { auth, setAuth } = useContext(AuthContext);
-
-  const location = useLocation();
-  const navigate = useNavigate();
-  const from = location.state?.from?.pathname || "/";
+  } = useForm<RegisterDTO>({ mode: "onBlur" });
 
   const emailErrorValidation = errors.email?.message;
+  const nameErrorValidation = errors.name?.message;
   const passwordErrorValidation = errors.name?.message;
 
-  const [errMsg, setErrMsg] = useState(null);
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+  const [successMsg, setSuccess] = useState<string | null>(null);
 
   // Sends register request to server
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: RegisterDTO) => {
     setErrMsg(null);
+    setSuccess(null);
 
     api
-      .post(LOGIN_URL, JSON.stringify(data), {
+      .post<MessageDTO>(REGISTER_URL, JSON.stringify(data), {
         headers: { "Content-Type": "application/json" },
-        withCredentials: true,
       })
       .then((response) => {
-        console.log(response.data);
-        const accessToken = response?.data?.access_token;
-        // console.log(accessToken);
-        const roles = response?.data?.roles;
-        const user = response?.data?.user;
-        const email = response?.data?.email;
-        // console.log(typeof auth);
-        // console.log(auth);
-        // console.log(typeof setAuth);
-
-        // console.log(roles, user, accessToken, email);
-        console.log("setAuth", typeof setAuth);
-        setAuth({
-          user: user,
-          roles: roles,
-          accessToken: accessToken,
-          email: email,
-        });
-        console.log("Auth", auth);
-        // Will be redirected either to previous page or to home
-        navigate(from, { replace: true });
+        console.log(response);
+        if (response.data?.message) {
+          setSuccess(response.data.message);
+          document.getElementById("formwrapper")?.classList.add("hidden");
+        }
       })
       .catch((err) => {
         console.log(err);
+        console.log(errors);
         // if site is not available
         if (err.code == "ERR_NETWORK") {
           setErrMsg(NO_SERVER_ERR);
         }
         setErrMsg(err.response.data.message);
+        console.log(errMsg);
       });
   };
 
@@ -81,7 +70,7 @@ const Login = () => {
         <div className="p-4 sm:p-7">
           <div className="text-center">
             <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
-              Login
+              Register
             </h1>
           </div>
           <div className="mt-5" id="formwrapper">
@@ -119,6 +108,35 @@ const Login = () => {
                       : null}
                   </div>
                   <label
+                    htmlFor="name"
+                    className="block text-sm font-bold ml-1 mb-2 dark:text-white"
+                  >
+                    Имя пользователя:
+                  </label>
+                  <div className="relative">
+                    <input
+                      className={INPUT_TEXT_CLASS}
+                      type="text"
+                      {...register("name", {
+                        required: {
+                          value: true,
+                          message: "Поле обязательно к заполнению",
+                        },
+                        minLength: {
+                          value: 3,
+                          message: "Минимальная длина имени - 3",
+                        },
+                        maxLength: {
+                          value: 100,
+                          message: "Максимальная длина имени 100 символов",
+                        },
+                      })}
+                    />
+                    {nameErrorValidation
+                      ? formValidationError(nameErrorValidation, "name-error")
+                      : null}
+                  </div>
+                  <label
                     htmlFor="password"
                     className="block text-sm font-bold ml-1 mb-2 dark:text-white"
                   >
@@ -142,15 +160,18 @@ const Login = () => {
                       : null}
                   </div>
                 </div>
-                <input type="submit" value="Войти" className={BUTTON_FORM} />
+                <input
+                  type="submit"
+                  value="Регистрация"
+                  className={BUTTON_FORM}
+                />
               </div>
             </form>
           </div>
         </div>
       </div>
+      {successMsg != null ? <div>{successMsgRender(successMsg)}</div> : null}
       {errMsg != null ? errorMessageRender(errMsg) : null}
     </main>
   );
 };
-
-export default Login;

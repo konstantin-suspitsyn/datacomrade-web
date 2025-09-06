@@ -6,7 +6,7 @@ export const BUTTON_FORM =
 export const FORM_BOX =
   "mt-7 bg-white  rounded-xl shadow-lg dark:bg-gray-800 dark:border-gray-700 border-2 border-indigo-300";
 
-export const formValidationError = (message, id) => {
+export const formValidationError = (message: string, id: string) => {
   return (
     <p className="text-xs text-red-600 mt-2, mb-4" id={id}>
       {message}

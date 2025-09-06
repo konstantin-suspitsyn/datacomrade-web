@@ -1,67 +1,85 @@
 import { useForm } from "react-hook-form";
-import api from "../../api/Axios";
+import { useAuth } from "../../hooks/useAuth";
+import { useLocation, useNavigate } from "react-router";
 import { useState } from "react";
+import { api } from "../../components/Api";
+import type { UserDTO } from "../../dto/Login";
 import {
-  NO_SERVER_ERR,
-  INPUT_TEXT_CLASS,
   BUTTON_FORM,
   FORM_BOX,
   formValidationError,
+  INPUT_TEXT_CLASS,
+  NO_SERVER_ERR,
 } from "./LoginConsts";
-import {
-  errorMessageRender,
-  successMsgRender,
-} from "../../components/htmlrenders/Alerts";
+import { errorMessageRender } from "../../components/htmlrenders/Alerts";
 
-const REGISTER_URL = "/v1/users";
+const LOGIN_URL = "/v1/users/login";
 
-const Register = () => {
+interface LoginDTO {
+  email: string;
+  password: string;
+}
+
+export const Login = () => {
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ mode: "onBlur" });
+  } = useForm<LoginDTO>({ mode: "onBlur" });
+
+  const auth = useAuth();
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const from = location.state?.from?.pathname || "/";
 
   const emailErrorValidation = errors.email?.message;
-  const nameErrorValidation = errors.name?.message;
-  const passwordErrorValidation = errors.name?.message;
-
-  const [errMsg, setErrMsg] = useState(null);
-  const [successMsg, setSuccess] = useState(null);
+  const passwordErrorValidation = errors.password?.message;
 
   // Sends register request to server
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: LoginDTO) => {
     setErrMsg(null);
-    setSuccess(null);
 
     api
-      .post(REGISTER_URL, JSON.stringify(data), {
+      .post<UserDTO>(LOGIN_URL, JSON.stringify(data), {
         headers: { "Content-Type": "application/json" },
+        withCredentials: true,
       })
       .then((response) => {
-        if (response.data?.message) {
-          setSuccess(response.data.message);
-          document.getElementById("formwrapper").classList.add("hidden");
-        }
+        console.log(response.data);
+        const accessToken = response?.data?.access_token;
+        // console.log(accessToken);
+        const roles = response?.data?.roles;
+        const user = response?.data?.user;
+        const email = response?.data?.email;
+        // console.log(typeof auth);
+        // console.log(auth);
+        // console.log(typeof setAuth);
+
+        // console.log(roles, user, accessToken, email);
+        auth.login(user, roles, accessToken, email);
+        console.log("Auth", auth.user);
+        // Will be redirected either to previous page or to home
+        navigate(from, { replace: true });
       })
       .catch((err) => {
-        console.log(errors);
+        console.log(err);
         // if site is not available
         if (err.code == "ERR_NETWORK") {
           setErrMsg(NO_SERVER_ERR);
         }
         setErrMsg(err.response.data.message);
-        console.log(errMsg);
       });
   };
-
   return (
     <main role="main" className="w-full  max-w-md mx-auto p-6">
       <div className={FORM_BOX}>
         <div className="p-4 sm:p-7">
           <div className="text-center">
             <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
-              Register
+              Login
             </h1>
           </div>
           <div className="mt-5" id="formwrapper">
@@ -76,7 +94,6 @@ const Register = () => {
                   </label>
                   <div className="relative">
                     <input
-                      // TODO: change to email
                       type="text"
                       className={INPUT_TEXT_CLASS}
                       {...register("email", {
@@ -96,36 +113,10 @@ const Register = () => {
                       })}
                     />
                     {emailErrorValidation
-                      ? formValidationError(emailErrorValidation, "email-error")
-                      : null}
-                  </div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-bold ml-1 mb-2 dark:text-white"
-                  >
-                    Имя пользователя:
-                  </label>
-                  <div className="relative">
-                    <input
-                      className={INPUT_TEXT_CLASS}
-                      type="text"
-                      {...register("name", {
-                        required: {
-                          value: true,
-                          message: "Поле обязательно к заполнению",
-                        },
-                        minLength: {
-                          value: 3,
-                          message: "Минимальная длина имени - 3",
-                        },
-                        maxLength: {
-                          value: 100,
-                          message: "Максимальная длина имени 100 символов",
-                        },
-                      })}
-                    />
-                    {nameErrorValidation
-                      ? formValidationError(nameErrorValidation, "name-error")
+                      ? formValidationError(
+                          emailErrorValidation.toString(),
+                          "email-error",
+                        )
                       : null}
                   </div>
                   <label
@@ -146,26 +137,19 @@ const Register = () => {
                     />
                     {passwordErrorValidation
                       ? formValidationError(
-                          passwordErrorValidation,
+                          passwordErrorValidation.toString(),
                           "name-error",
                         )
                       : null}
                   </div>
                 </div>
-                <input
-                  type="submit"
-                  value="Регистрация"
-                  className={BUTTON_FORM}
-                />
+                <input type="submit" value="Войти" className={BUTTON_FORM} />
               </div>
             </form>
           </div>
         </div>
       </div>
-      {successMsg != null ? <div>{successMsgRender(successMsg)}</div> : null}
       {errMsg != null ? errorMessageRender(errMsg) : null}
     </main>
   );
 };
-
-export default Register;
