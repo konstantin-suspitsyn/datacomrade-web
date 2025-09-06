@@ -1,0 +1,177 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { api } from "../../components/Api";
+import {
+  BUTTON_FORM,
+  FORM_BOX,
+  formValidationError,
+  INPUT_TEXT_CLASS,
+  NO_SERVER_ERR,
+} from "./LoginConsts";
+import {
+  errorMessageRender,
+  successMsgRender,
+} from "../../components/htmlrenders/Alerts";
+import type { MessageDTO } from "../../dto/CommontData";
+
+const REGISTER_URL = "/v1/users";
+
+interface RegisterDTO {
+  email: string;
+  name: string;
+  password: string;
+}
+
+export const Register = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterDTO>({ mode: "onBlur" });
+
+  const emailErrorValidation = errors.email?.message;
+  const nameErrorValidation = errors.name?.message;
+  const passwordErrorValidation = errors.name?.message;
+
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+  const [successMsg, setSuccess] = useState<string | null>(null);
+
+  // Sends register request to server
+  const onSubmit = async (data: RegisterDTO) => {
+    setErrMsg(null);
+    setSuccess(null);
+
+    api
+      .post<MessageDTO>(REGISTER_URL, JSON.stringify(data), {
+        headers: { "Content-Type": "application/json" },
+      })
+      .then((response) => {
+        console.log(response);
+        if (response.data?.message) {
+          setSuccess(response.data.message);
+          document.getElementById("formwrapper")?.classList.add("hidden");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        console.log(errors);
+        // if site is not available
+        if (err.code == "ERR_NETWORK") {
+          setErrMsg(NO_SERVER_ERR);
+        }
+        setErrMsg(err.response.data.message);
+        console.log(errMsg);
+      });
+  };
+
+  return (
+    <main role="main" className="w-full  max-w-md mx-auto p-6">
+      <div className={FORM_BOX}>
+        <div className="p-4 sm:p-7">
+          <div className="text-center">
+            <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
+              Register
+            </h1>
+          </div>
+          <div className="mt-5" id="formwrapper">
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="grid gap-y-4">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-bold ml-1 mb-2 dark:text-white"
+                  >
+                    Электронная почта:
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      className={INPUT_TEXT_CLASS}
+                      {...register("email", {
+                        required: {
+                          value: true,
+                          message: "Поле обязательно к заполнению",
+                        },
+                        pattern: {
+                          value:
+                            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                          message: "Некорректный email",
+                        },
+                        maxLength: {
+                          value: 100,
+                          message: "Максимальная длина email 100 символов",
+                        },
+                      })}
+                    />
+                    {emailErrorValidation
+                      ? formValidationError(emailErrorValidation, "email-error")
+                      : null}
+                  </div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-bold ml-1 mb-2 dark:text-white"
+                  >
+                    Имя пользователя:
+                  </label>
+                  <div className="relative">
+                    <input
+                      className={INPUT_TEXT_CLASS}
+                      type="text"
+                      {...register("name", {
+                        required: {
+                          value: true,
+                          message: "Поле обязательно к заполнению",
+                        },
+                        minLength: {
+                          value: 3,
+                          message: "Минимальная длина имени - 3",
+                        },
+                        maxLength: {
+                          value: 100,
+                          message: "Максимальная длина имени 100 символов",
+                        },
+                      })}
+                    />
+                    {nameErrorValidation
+                      ? formValidationError(nameErrorValidation, "name-error")
+                      : null}
+                  </div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-bold ml-1 mb-2 dark:text-white"
+                  >
+                    Пароль:
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="password"
+                      className={INPUT_TEXT_CLASS}
+                      {...register("password", {
+                        required: true,
+                        maxLength: 30,
+                        minLength: 8,
+                      })}
+                    />
+                    {passwordErrorValidation
+                      ? formValidationError(
+                          passwordErrorValidation,
+                          "name-error",
+                        )
+                      : null}
+                  </div>
+                </div>
+                <input
+                  type="submit"
+                  value="Регистрация"
+                  className={BUTTON_FORM}
+                />
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {successMsg != null ? <div>{successMsgRender(successMsg)}</div> : null}
+      {errMsg != null ? errorMessageRender(errMsg) : null}
+    </main>
+  );
+};
