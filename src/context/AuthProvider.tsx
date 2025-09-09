@@ -45,8 +45,26 @@ const AuthProvider: FC<AuthProviderProps> = ({
 
   // TODO: Read data from local storage to user and roles
   useEffect(() => {
-    setUser(defaultAppUser);
-    setIsAuthenticated(false);
+    console.log("RUN ON START OF USE EFFECT");
+
+    const localName = localStorage.getItem("user");
+    const localEmail = localStorage.getItem("email");
+    const localRoles = localStorage.getItem("roles");
+
+    if (localName != null && localEmail != null && localRoles != null) {
+      const localUser: AppUser = {
+        name: localName,
+        roles: JSON.parse(localRoles),
+        email: localEmail,
+      };
+
+      setUser(localUser);
+      setIsAuthenticated(true);
+      console.log("Filled local storage");
+    } else {
+      setUser(defaultAppUser);
+      setIsAuthenticated(false);
+    }
   }, []);
 
   const login = (
@@ -65,13 +83,20 @@ const AuthProvider: FC<AuthProviderProps> = ({
     setIsAuthenticated(true);
     setAccessToken(accessToken);
 
-    // TODO: Write data to local storage to user and roles
+    if (name != null) {
+      localStorage.setItem("user", name);
+    }
+    localStorage.setItem("roles", JSON.stringify(roles));
+    if (email != null) {
+      localStorage.setItem("email", email);
+    }
   };
 
   const logout = () => {
     setIsAuthenticated(false);
     setUser(defaultAppUser);
     setAccessToken(undefined);
+    localStorage.clear();
   };
 
   const updateAccessToken = (accessToken: string) => {
