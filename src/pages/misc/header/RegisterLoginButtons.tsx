@@ -11,6 +11,10 @@ export const RegisterLoginButtons = () => {
     logout = true;
   }
 
+  const logoutOnClick = () => {
+    auth.logout();
+  };
+
   return (
     <div className="flex items-center gap-4">
       <div className="sm:flex sm:gap-4">
@@ -31,12 +35,12 @@ export const RegisterLoginButtons = () => {
             Register
           </NavLink>
         ) : (
-          <NavLink
+          <a
             className="hidden rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-rose-600 transition hover:text-rose-600/75 sm:block"
-            to={REGISTER_LINK}
+            onClick={logoutOnClick}
           >
-            Register
-          </NavLink>
+            Logout
+          </a>
         )}
       </div>
 
@@ -51,8 +55,8 @@ export const RegisterLoginButtons = () => {
           stroke-width="2"
         >
           <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             d="M4 6h16M4 12h16M4 18h16"
           />
         </svg>
