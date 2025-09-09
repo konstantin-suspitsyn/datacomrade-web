@@ -1,6 +1,12 @@
-import { createContext, useState, type FC, type ReactNode } from "react";
+import {
+  createContext,
+  useEffect,
+  useState,
+  type FC,
+  type PropsWithChildren,
+} from "react";
 
-interface AppUser {
+export interface AppUser {
   name: string | null;
   roles: string[];
   email: string | null;
@@ -11,10 +17,6 @@ const defaultAppUser: AppUser = {
   roles: [],
   email: null,
 };
-
-interface AuthProviderProps {
-  children: ReactNode;
-}
 
 interface AuthContextType {
   user: AppUser | null;
@@ -30,25 +32,22 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const defaultAuthContextType: AuthContextType = {
-  user: defaultAppUser,
-  isAuthenticated: false,
-  accessToken: undefined,
-  updateAccessToken: () => {},
-  login: () => {},
-  logout: () => {},
-};
+type AuthProviderProps = PropsWithChildren;
 
-const AuthContext = createContext<AuthContextType>(defaultAuthContextType);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider: FC<AuthProviderProps> = ({
   children,
-}: {
-  children: ReactNode;
-}) => {
-  const [user, setUser] = useState<AppUser | null>(defaultAppUser);
+}: AuthProviderProps) => {
+  const [user, setUser] = useState<AppUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
+
+  // TODO: Read data from local storage to user and roles
+  useEffect(() => {
+    setUser(defaultAppUser);
+    setIsAuthenticated(false);
+  }, []);
 
   const login = (
     name: string | null,
@@ -65,6 +64,8 @@ const AuthProvider: FC<AuthProviderProps> = ({
     setUser(user);
     setIsAuthenticated(true);
     setAccessToken(accessToken);
+
+    // TODO: Write data to local storage to user and roles
   };
 
   const logout = () => {
@@ -78,12 +79,12 @@ const AuthProvider: FC<AuthProviderProps> = ({
   };
 
   const authContextValue: AuthContextType = {
-    user,
-    isAuthenticated,
-    accessToken,
-    updateAccessToken,
-    login,
-    logout,
+    user: user,
+    isAuthenticated: isAuthenticated,
+    accessToken: accessToken,
+    updateAccessToken: updateAccessToken,
+    login: login,
+    logout: logout,
   };
 
   return (

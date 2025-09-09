@@ -24,9 +24,7 @@ export const Navigation = () => {
             </NavLink>
           </li>
           <li>
-            <NavLink className={MENU_LINKS} to="/me">
-              Me
-            </NavLink>
+            <NavLink to="/me">Me</NavLink>
           </li>
         </ul>
       </nav>
