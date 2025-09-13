@@ -1,5 +1,9 @@
 import { NavLink } from "react-router";
-import { LOGIN_LINK, REGISTER_LINK } from "../../../components/AllRoutes.tsx";
+import {
+  LOGIN_LINK,
+  LOGOUT_LINK,
+  REGISTER_LINK,
+} from "../../../components/AllRoutes.tsx";
 import { useAuth } from "../../../hooks/useAuth.tsx";
 
 export const RegisterLoginButtons = () => {
@@ -35,12 +39,13 @@ export const RegisterLoginButtons = () => {
             Register
           </NavLink>
         ) : (
-          <a
+          <NavLink
+            to={LOGOUT_LINK}
             className="hidden rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-rose-600 transition hover:text-rose-600/75 sm:block"
             onClick={logoutOnClick}
           >
             Logout
-          </a>
+          </NavLink>
         )}
       </div>
 
