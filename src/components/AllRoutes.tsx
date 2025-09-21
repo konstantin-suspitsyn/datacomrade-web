@@ -11,6 +11,8 @@ export const LOGIN_LINK = "/login";
 export const REGISTER_LINK = "/register";
 export const ME_LINK = "/me";
 export const LOGOUT_LINK = "/logout";
+export const DOMAINS_LINK = "/v1/domain";
+export const ROLES_LINK = "/v1/roles";
 
 export const AllRoutes = [
   {
