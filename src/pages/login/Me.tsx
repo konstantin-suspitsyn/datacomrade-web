@@ -8,10 +8,10 @@ export const Me = () => {
     axiosPrivate
       .get(ME)
       .then((response) => {
-        console.log("rd", response.data);
+        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!rd", response.data);
       })
       .catch((err) => {
-        console.log("err", err);
+        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!err", err);
       });
   };
   return (
