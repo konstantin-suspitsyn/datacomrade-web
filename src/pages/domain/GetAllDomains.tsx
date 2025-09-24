@@ -23,10 +23,9 @@ export const GetAllDomains = () => {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err);
         console.log(err);
         if (err.status === 401) {
-          console.log("!!!!!!!!!!!UNAUTHORIZED!");
+          setError("UNAUTHORIZED");
         }
       });
   };
@@ -39,6 +38,9 @@ export const GetAllDomains = () => {
       setCurrentPage(newPage);
     }
   };
+  if (error === "UNAUTHORIZED") {
+    return <div>UNAUTHORIZED</div>;
+  }
 
   return (
     <div>
@@ -61,7 +63,7 @@ export const GetAllDomains = () => {
               <th>{item.description.String}</th>
               <th>{item.created_at.toLocaleString()}</th>
               <th>{item.updated_at.toLocaleString()}</th>
-              <th>{item.id}</th>
+              <th>{item.user_id}</th>
             </tr>
           ))}
         </tbody>
@@ -84,7 +86,7 @@ export const GetAllDomains = () => {
           Next
         </button>
       </div>
-      {pagination()}
+      {pagination(100, 50, "abc")}
     </div>
   );
 };
