@@ -24,6 +24,10 @@ export const GetAllDomains = () => {
       })
       .catch((err) => {
         setError(err);
+        console.log(err);
+        if (err.status === 401) {
+          console.log("!!!!!!!!!!!UNAUTHORIZED!");
+        }
       });
   };
   useEffect(() => {
