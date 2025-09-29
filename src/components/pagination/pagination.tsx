@@ -1,8 +1,9 @@
 import { NavLink } from "react-router";
+import { PAGE_PARAM } from "../commonconsts/paging";
 export const pagination = (
   totalPages: number,
   currentPage: number,
-  link: string,
+  link: string | null,
 ) => {
   // Only one page
   if (totalPages == 1) {
@@ -59,7 +60,10 @@ export const pagination = (
   }
 
   const linkWithParams = (pageNo: number) => {
-    return `${link}?page=${pageNo}`;
+    if (link === null) {
+      return `?${PAGE_PARAM}=${pageNo}`;
+    }
+    return `${link}?{PAGE_PARAM}=${pageNo}`;
   };
 
   return (

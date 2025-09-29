@@ -3,7 +3,7 @@ import { Navigation } from "./pages/misc/header/Navigation";
 import { Logo } from "./pages/misc/header/Logo";
 import { RegisterLoginButtons } from "./pages/misc/header/RegisterLoginButtons";
 
-const CONTAINER =
+export const CONTAINER =
   "mx-auto flex h-16 max-w-screen-xl items-center gap-8 px-4 sm:px-6 lg:px-8";
 
 export const App = () => {
@@ -18,6 +18,7 @@ export const App = () => {
           <RegisterLoginButtons />
         </div>
       </header>
+      <div className="clear-both"></div>
       <Outlet />
     </>
   );
