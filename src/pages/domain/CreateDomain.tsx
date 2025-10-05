@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import useAxiosPrivate from "../../hooks/useAxiousPrivate";
+import { errorMessageRender } from "../../components/htmlrenders/Alerts";
+import { formValidationError } from "../login/LoginConsts";
 
 interface DomainInputDTO {
   name: string;
@@ -32,9 +34,13 @@ export const CreateDomain = () => {
         console.log(response.data);
       })
       .catch((err) => {
+        setErrMsg(err.response.data.message);
         console.log(err);
       });
   };
+
+  const nameError = errors.name?.message;
+  const descriptionError = errors.description?.message;
 
   return (
     <div>
@@ -59,6 +65,9 @@ export const CreateDomain = () => {
                   })}
                   className="w-full appearance-none rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
                 />
+                {nameError
+                  ? formValidationError(nameError.toString(), "name-error")
+                  : null}
               </div>
               <div className="mb-5">
                 <label
@@ -77,15 +86,22 @@ export const CreateDomain = () => {
                   })}
                   className="w-full appearance-none rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
                 />
+                {descriptionError
+                  ? formValidationError(
+                      descriptionError.toString(),
+                      "description-error",
+                    )
+                  : null}
               </div>
               <input
                 type="submit"
                 value="Сохранить"
-                className="hover:shadow-form rounded-md bg-[#6A64F1] py-3 px-8 text-center text-base font-semibold text-white outline-none"
+                className="py-1.5 px-3 m-1 text-center bg-violet-700 border rounded-md text-white  hover:bg-violet-500 hover:text-gray-100 dark:text-gray-200 dark:bg-violet-700 hover:cursor-pointer"
               />
             </form>
           </div>
         </div>
+        {errMsg != null ? errorMessageRender(errMsg) : null}
       </main>
     </div>
   );
