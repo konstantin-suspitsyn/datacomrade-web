@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiousPrivate";
 import { BACKEND_DOMAINS_LINK } from "../../components/AllRoutes";
 import type { DomainDTO, DomainsAllDTO } from "./DTODomain";
-import { PAGE_PARAM } from "../../components/commonconsts/paging";
+import { ID_PARAM, PAGE_PARAM } from "../../components/commonconsts/paging";
 import { pagination } from "../../components/pagination/pagination";
-import { useLocation, useSearchParams } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 
 export const GetAllDomains = () => {
   const [data, setData] = useState<DomainDTO[]>([]);
@@ -12,12 +12,31 @@ export const GetAllDomains = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [itemsPerPage, serItemsPerPage] = useState<number>(0);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [urlParams] = useSearchParams();
 
   const axiosPrivate = useAxiosPrivate();
+
+  const deleteDomain = async (id: number) => {
+    axiosPrivate
+      .delete(BACKEND_DOMAINS_LINK + "/" + `${id}`, {
+        withCredentials: true,
+      })
+      .then(() => {
+        console.log("PATHNAME !!!!!!!!!!!!!!!!!!", location.pathname);
+        console.log("PATHNAME !!!!!!!!!!!!!!!!!!", currentPage);
+        if (itemsPerPage == 1) {
+          const idNavigate = Math.max(1, currentPage - 1);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const handlePageChange = async () => {
     const curPageNo = urlParams.get(PAGE_PARAM);
@@ -33,12 +52,18 @@ export const GetAllDomains = () => {
   const getAllDomains = async (page: number) => {
     setLoading(true);
     axiosPrivate
-      .get<DomainsAllDTO>(BACKEND_DOMAINS_LINK + "?" + PAGE_PARAM + `=${page}`)
+      .get<DomainsAllDTO>(
+        BACKEND_DOMAINS_LINK + "?" + PAGE_PARAM + `=${page}`,
+        {
+          withCredentials: true,
+        },
+      )
       .then((response) => {
         setData(response.data.data);
         console.log(response.data.data);
         setCurrentPage(response.data.paging.current_page);
         setTotalPages(response.data.paging.total_pages);
+        serItemsPerPage(data.length);
         setLoading(false);
       })
       .catch((err) => {
@@ -143,7 +168,12 @@ export const GetAllDomains = () => {
                         </svg>
                       </span>
                     </button>
-                    <button className="text-slate-800 hover:text-blue-600 text-sm bg-white hover:bg-slate-100 border border-slate-200 rounded-r-lg font-medium px-4 py-2 inline-flex space-x-1 items-center">
+                    <button
+                      onClick={() => {
+                        deleteDomain(item.id);
+                      }}
+                      className="text-slate-800 hover:text-blue-600 text-sm bg-white hover:bg-slate-100 border border-slate-200 rounded-r-lg font-medium px-4 py-2 inline-flex space-x-1 items-center"
+                    >
                       <span>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
